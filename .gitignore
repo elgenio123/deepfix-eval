@@ -1,0 +1,5 @@
+.env
+.venv/
+outputs/
+__pycache__/
+debug_script_output.txt
