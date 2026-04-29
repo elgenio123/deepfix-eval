@@ -5,7 +5,7 @@ import numpy as np
 from config import PIPELINE_COUNTS_PER_TASK, RANDOM_SEED, TaskType
 from dataset_generator import DatasetGenerator
 from deepfix_runner import DeepFixRunner
-from parser import OutputParser
+from output_parser import OutputParser
 from evaluator import Evaluator
 from reporter import Reporter
 from visualizer import Visualizer
@@ -43,6 +43,7 @@ def run_experiment(seed: int = RANDOM_SEED):
         
         raw_report = raw_outputs[pid]
         predictions[pid] = parser.parse(raw_report)
+        # print(predictions)
         
     # 4. Evaluation
     print("4. Computing metrics...")

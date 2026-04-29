@@ -19,7 +19,8 @@ class DeepFixRunner:
     
     def __init__(self):
         # API key is automatically picked up from os.environ by the SDK if DEEPFIX_API_KEY is set.
-        self.client = DeepFixClient(api_url="http://localhost:8844/v2/analyse")
+        # self.client = DeepFixClient(api_url="http://localhost:8844/v2/analyse")
+        self.client = DeepFixClient() 
         
         # Ensure output directory exists
         os.makedirs(RAW_RESULTS_DIR, exist_ok=True)

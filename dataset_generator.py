@@ -13,12 +13,8 @@ from config import (
     Difficulty,
     DIFFICULTY_PROFILES,
     INJECTION_PARAMS,
-    DEFAULT_N_SAMPLES,
-    DEFAULT_N_FEATURES,
-    DEFAULT_N_INFORMATIVE,
-    DEFAULT_N_CLASSES,
-    DEFAULT_TEST_SIZE,
-    RANDOM_SEED
+    RANDOM_SEED,
+    DEFAULT_TEST_SIZE
 )
 
 class PipelineInstance:

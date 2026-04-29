@@ -90,7 +90,6 @@ class IssueMeta:
     category: IssueCategory
     default_severity: Severity
     description: str
-    synonyms: List[str] = field(default_factory=list)
 
 
 ISSUE_REGISTRY: Dict[IssueType, IssueMeta] = {
@@ -99,150 +98,84 @@ ISSUE_REGISTRY: Dict[IssueType, IssueMeta] = {
         category=IssueCategory.DATA,
         default_severity=Severity.MEDIUM,
         description="Dataset contains missing or null values",
-        synonyms=[
-            "missing values", "null values", "nan", "missing data",
-            "incomplete data", "missing entries", "missing statistics",
-            "null entries", "empty values",
-        ],
     ),
     IssueType.MULTICOLLINEARITY: IssueMeta(
         issue_type=IssueType.MULTICOLLINEARITY,
         category=IssueCategory.DATA,
         default_severity=Severity.MEDIUM,
         description="Features are highly correlated with each other",
-        synonyms=[
-            "multicollinearity", "collinearity", "correlated features",
-            "high correlation", "feature correlation", "redundant features",
-            "highly correlated", "linear dependency",
-        ],
     ),
     IssueType.CLASS_IMBALANCE: IssueMeta(
         issue_type=IssueType.CLASS_IMBALANCE,
         category=IssueCategory.DATA,
         default_severity=Severity.HIGH,
         description="Target class distribution is heavily skewed",
-        synonyms=[
-            "class imbalance", "imbalanced classes", "skewed distribution",
-            "unbalanced classes", "minority class", "class distribution",
-            "imbalanced dataset", "label imbalance",
-        ],
     ),
     IssueType.DATA_LEAKAGE: IssueMeta(
         issue_type=IssueType.DATA_LEAKAGE,
         category=IssueCategory.DATA,
         default_severity=Severity.HIGH,
         description="Target or test information leaks into training features",
-        synonyms=[
-            "data leakage", "leakage", "target leakage",
-            "information leakage", "label leakage", "train-test leakage",
-        ],
     ),
     IssueType.NOISY_FEATURES: IssueMeta(
         issue_type=IssueType.NOISY_FEATURES,
         category=IssueCategory.DATA,
         default_severity=Severity.LOW,
         description="Irrelevant or random noise features present",
-        synonyms=[
-            "noisy features", "irrelevant features", "noise",
-            "random features", "feature misuse", "useless features",
-            "uninformative features",
-        ],
     ),
     IssueType.FAIRNESS_CONCERNS: IssueMeta(
         issue_type=IssueType.FAIRNESS_CONCERNS,
         category=IssueCategory.DATA,
         default_severity=Severity.HIGH,
         description="Dataset or model is biased against a specific group",
-        synonyms=[
-            "fairness concerns", "bias", "algorithmic bias", "unfairness",
-            "disparate impact", "demographic disparity", "group bias"
-        ],
     ),
     IssueType.UNFITTED_MODEL: IssueMeta(
         issue_type=IssueType.UNFITTED_MODEL,
         category=IssueCategory.MODEL,
         default_severity=Severity.HIGH,
         description="Model was not fitted / trained before evaluation",
-        synonyms=[
-            "unfitted model", "not fitted", "untrained model",
-            "model not trained", "unfitted", "not trained",
-            "model without training",
-        ],
     ),
     IssueType.BAD_HYPERPARAMETERS: IssueMeta(
         issue_type=IssueType.BAD_HYPERPARAMETERS,
         category=IssueCategory.MODEL,
         default_severity=Severity.MEDIUM,
         description="Model hyperparameters are set to extreme or poor values",
-        synonyms=[
-            "bad hyperparameters", "poor hyperparameters", "extreme hyperparameters",
-            "hyperparameter issue", "suboptimal hyperparameters",
-            "misconfigured hyperparameters", "wrong hyperparameters",
-        ],
     ),
     IssueType.NO_RANDOM_STATE: IssueMeta(
         issue_type=IssueType.NO_RANDOM_STATE,
         category=IssueCategory.MODEL,
         default_severity=Severity.LOW,
         description="Model lacks a fixed random_state for reproducibility",
-        synonyms=[
-            "no random state", "random state missing", "no seed",
-            "missing random_state", "reproducibility", "non-reproducible",
-            "random seed missing",
-        ],
     ),
     IssueType.WRONG_SPLIT: IssueMeta(
         issue_type=IssueType.WRONG_SPLIT,
         category=IssueCategory.PIPELINE,
         default_severity=Severity.MEDIUM,
         description="Train/test split ratio is inappropriate",
-        synonyms=[
-            "wrong split", "bad split", "split ratio", "train test split",
-            "improper split", "incorrect split ratio", "data split",
-        ],
     ),
     IssueType.UNUSED_FEATURES: IssueMeta(
         issue_type=IssueType.UNUSED_FEATURES,
         category=IssueCategory.PIPELINE,
         default_severity=Severity.MEDIUM,
         description="Some features are not used during training but present in data",
-        synonyms=[
-            "unused features", "dropped features", "feature mismatch",
-            "missing features", "feature subset", "inconsistent features",
-        ],
     ),
     IssueType.COVARIATE_DRIFT: IssueMeta(
         issue_type=IssueType.COVARIATE_DRIFT,
         category=IssueCategory.DATA,
         default_severity=Severity.HIGH,
         description="Feature distributions shift between training and test data",
-        synonyms=[
-            "covariate drift", "concept drift", "distribution shift",
-            "covariate shift", "data drift", "dataset shift",
-            "population shift", "domain shift",
-        ],
     ),
     IssueType.FEATURE_ENGINEERING_MISTAKES: IssueMeta(
         issue_type=IssueType.FEATURE_ENGINEERING_MISTAKES,
         category=IssueCategory.PIPELINE,
         default_severity=Severity.MEDIUM,
         description="Categorical variables are misencoded or feature engineering leaks info",
-        synonyms=[
-            "feature engineering", "misencoded", "encoding mistake",
-            "categorical encoding", "one-hot encoding", "label encoding",
-            "feature engineering mistake", "misencoding",
-        ],
     ),
     IssueType.OVERFIT_UNDERFIT: IssueMeta(
         issue_type=IssueType.OVERFIT_UNDERFIT,
         category=IssueCategory.MODEL,
         default_severity=Severity.HIGH,
         description="Model overfits or underfits the training data",
-        synonyms=[
-            "overfit", "underfit", "overfitting", "underfitting",
-            "over-fitting", "under-fitting", "train-test gap",
-            "generalization", "high variance", "high bias",
-        ],
     ),
 }
 
@@ -281,17 +214,17 @@ DIFFICULTY_PROFILES = {
 # These counts are applied to EACH task type (classification AND regression).
 # e.g. sum = 10 means 10 classification + 10 regression = 20 total API requests.
 PIPELINE_COUNTS_PER_TASK = {
-    Difficulty.EASY: 15,
-    Difficulty.MEDIUM: 15,
-    Difficulty.HARD: 20,
+    Difficulty.EASY: 0,
+    Difficulty.MEDIUM: 1,
+    Difficulty.HARD: 0,
 }
 TOTAL_PIPELINES = sum(PIPELINE_COUNTS_PER_TASK.values()) * len(TaskType)
 
 # Synthetic dataset parameters
-DEFAULT_N_SAMPLES = 1000
-DEFAULT_N_FEATURES = 15
-DEFAULT_N_INFORMATIVE = 10
-DEFAULT_N_CLASSES = 3
+# DEFAULT_N_SAMPLES = 1000
+# DEFAULT_N_FEATURES = 15
+# DEFAULT_N_INFORMATIVE = 10
+# DEFAULT_N_CLASSES = 3
 DEFAULT_TEST_SIZE = 0.2
 
 
