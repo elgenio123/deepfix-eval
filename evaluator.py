@@ -77,6 +77,13 @@ class Evaluator:
         y_pred_all = np.array(y_pred_all)
         
         n_pipelines = len(pipeline_ids)
+        if n_pipelines == 0:
+            return {
+                "detection": {"precision_macro": 0.0, "recall_macro": 0.0, "f1_macro": 0.0, "precision_micro": 0.0, "recall_micro": 0.0, "f1_micro": 0.0},
+                "pipeline_level": {"detection_rate": 0.0, "find_one_rate": 0.0, "find_all_rate": 0.0},
+                "alert_quality": {"false_positive_rate": 0.0, "over_detection_penalty": 0.0},
+                "per_issue": {it: {"precision": 0.0, "recall": 0.0, "f1": 0.0} for it in self.issue_types}
+            }
         
         # Raha Detection Metrics
         # Macro averaging treats all classes equally

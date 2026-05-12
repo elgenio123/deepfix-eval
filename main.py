@@ -1,6 +1,7 @@
 import argparse
 import random
 import numpy as np
+import json
 
 from config import PIPELINE_COUNTS_PER_TASK, RANDOM_SEED, TaskType
 from dataset_generator import DatasetGenerator
@@ -32,18 +33,27 @@ def run_experiment(seed: int = RANDOM_SEED):
     # 3. Output Parsing
     print("3. Parsing unstructured reports...")
     parser = OutputParser()
-    predictions = {}
-    ground_truths = {}
-    task_types = {}
+    ground_truths = {p.pipeline_id: p.ground_truth_issues for p in pipelines}
+    task_types = {p.pipeline_id: p.task_type for p in pipelines}
     
-    for pipeline in pipelines:
-        pid = pipeline.pipeline_id
-        ground_truths[pid] = pipeline.ground_truth_issues
-        task_types[pid] = pipeline.task_type
+    # Batch processing to optimize API usage (exactly 5 requests as per GEMINI.md)
+    num_requests = 5
+    pipeline_ids = [p.pipeline_id for p in pipelines]
+    if not pipeline_ids:
+        print("No pipelines generated.")
+        return None
         
-        raw_report = raw_outputs[pid]
-        predictions[pid] = parser.parse(raw_report)
-        # print(predictions)
+    k, m = divmod(len(pipeline_ids), num_requests)
+    batches_ids = [pipeline_ids[i*k+min(i, m):(i+1)*k+min(i+1, m)] for i in range(num_requests)]
+    
+    predictions = {}
+    for i, batch_id_list in enumerate(batches_ids):
+        if not batch_id_list:
+            continue
+        print(f"   -> Batch {i+1}/{num_requests} ({len(batch_id_list)} pipelines)")
+        batch_reports = {pid: raw_outputs[pid] for pid in batch_id_list}
+        batch_predictions = parser.parse_batch(batch_reports)
+        predictions.update(batch_predictions)
         
     # 4. Evaluation
     print("4. Computing metrics...")
@@ -53,12 +63,12 @@ def run_experiment(seed: int = RANDOM_SEED):
     
     clf_pids = [pid for pid, tt in task_types.items() if tt == TaskType.CLASSIFICATION]
     gt_clf = {pid: ground_truths[pid] for pid in clf_pids}
-    pred_clf = {pid: predictions[pid] for pid in clf_pids}
+    pred_clf = {pid: predictions.get(pid, []) for pid in clf_pids}
     results_clf = evaluator.evaluate(gt_clf, pred_clf)
     
     reg_pids = [pid for pid, tt in task_types.items() if tt == TaskType.REGRESSION]
     gt_reg = {pid: ground_truths[pid] for pid in reg_pids}
-    pred_reg = {pid: predictions[pid] for pid in reg_pids}
+    pred_reg = {pid: predictions.get(pid, []) for pid in reg_pids}
     results_reg = evaluator.evaluate(gt_reg, pred_reg)
     
     results = {
@@ -75,7 +85,7 @@ def run_experiment(seed: int = RANDOM_SEED):
     # 6. Visualization
     print("6. Generating visualizations...")
     visualizer = Visualizer()
-    visualizer.visualize(pipelines)
+    visualizer.visualize(pipelines, results=results)
     
     return results
 

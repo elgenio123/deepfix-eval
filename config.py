@@ -66,14 +66,14 @@ class IssueType(str, Enum):
     COVARIATE_DRIFT = "covariate_drift"
 
     # MODEL issues
-    UNFITTED_MODEL = "unfitted_model"
+    # UNFITTED_MODEL = "unfitted_model"
     BAD_HYPERPARAMETERS = "bad_hyperparameters"
     NO_RANDOM_STATE = "no_random_state"
     OVERFIT_UNDERFIT = "overfit_underfit"
 
     # PIPELINE issues
     WRONG_SPLIT = "wrong_split"
-    UNUSED_FEATURES = "unused_features"
+    # UNUSED_FEATURES = "unused_features"
     FEATURE_ENGINEERING_MISTAKES = "feature_engineering_mistakes"
 
     def __str__(self) -> str:
@@ -129,12 +129,12 @@ ISSUE_REGISTRY: Dict[IssueType, IssueMeta] = {
         default_severity=Severity.HIGH,
         description="Dataset or model is biased against a specific group",
     ),
-    IssueType.UNFITTED_MODEL: IssueMeta(
-        issue_type=IssueType.UNFITTED_MODEL,
-        category=IssueCategory.MODEL,
-        default_severity=Severity.HIGH,
-        description="Model was not fitted / trained before evaluation",
-    ),
+    # IssueType.UNFITTED_MODEL: IssueMeta(
+    #     issue_type=IssueType.UNFITTED_MODEL,
+    #     category=IssueCategory.MODEL,
+    #     default_severity=Severity.HIGH,
+    #     description="Model was not fitted / trained before evaluation",
+    # ),
     IssueType.BAD_HYPERPARAMETERS: IssueMeta(
         issue_type=IssueType.BAD_HYPERPARAMETERS,
         category=IssueCategory.MODEL,
@@ -153,12 +153,12 @@ ISSUE_REGISTRY: Dict[IssueType, IssueMeta] = {
         default_severity=Severity.MEDIUM,
         description="Train/test split ratio is inappropriate",
     ),
-    IssueType.UNUSED_FEATURES: IssueMeta(
-        issue_type=IssueType.UNUSED_FEATURES,
-        category=IssueCategory.PIPELINE,
-        default_severity=Severity.MEDIUM,
-        description="Some features are not used during training but present in data",
-    ),
+    # IssueType.UNUSED_FEATURES: IssueMeta(
+    #     issue_type=IssueType.UNUSED_FEATURES,
+    #     category=IssueCategory.PIPELINE,
+    #     default_severity=Severity.MEDIUM,
+    #     description="Some features are not used during training but present in data",
+    # ),
     IssueType.COVARIATE_DRIFT: IssueMeta(
         issue_type=IssueType.COVARIATE_DRIFT,
         category=IssueCategory.DATA,
@@ -251,7 +251,7 @@ INJECTION_PARAMS = {
         "sensitive_feature": "sensitive_group",
         "bias_factor": 0.5,
     },
-    IssueType.UNFITTED_MODEL: {},  # no params needed
+    # IssueType.UNFITTED_MODEL: {},  # no params needed
     IssueType.BAD_HYPERPARAMETERS: {
         "max_depth": 1,
         "learning_rate": 10.0,
@@ -260,9 +260,9 @@ INJECTION_PARAMS = {
     IssueType.WRONG_SPLIT: {
         "split_ratio": 0.99,  # 99% train / 1% test
     },
-    IssueType.UNUSED_FEATURES: {
-        "drop_fraction": 0.5,  # drop 50% of features during training
-    },
+    # IssueType.UNUSED_FEATURES: {
+    #     "drop_fraction": 0.5,  # drop 50% of features during training
+    # },
     IssueType.COVARIATE_DRIFT: {
         "shift_mean": 3.0,      # add to test features
         "shift_scale": 1.5,     # multiply noise on test features

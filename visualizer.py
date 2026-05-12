@@ -1,3 +1,4 @@
+from ast import Dict
 import os
 import numpy as np
 import matplotlib.pyplot as plt
@@ -14,10 +15,44 @@ class Visualizer:
         # Set styling
         sns.set_theme(style="whitegrid")
 
-    def visualize(self, pipelines: List[PipelineInstance]):
+    def visualize(self, pipelines: List[PipelineInstance], results = None):
         self.plot_residual_scatterplot(pipelines)
         self.plot_error_by_group(pipelines)
         self.plot_groupwise_confusion_matrices(pipelines)
+        if results:
+            self.plot_per_issue_metrics(results)
+
+    def plot_per_issue_metrics(self, results):
+        """Plot precision, recall, and f1 for each issue type using evaluation results."""
+        # Use overall results for per-issue metrics
+        data = results.get("overall", results).get("per_issue", {})
+        if not data:
+            return
+
+        issue_types = list(data.keys())
+        precisions = [data[it]["precision"] for it in issue_types]
+        recalls = [data[it]["recall"] for it in issue_types]
+        f1s = [data[it]["f1"] for it in issue_types]
+
+        x = np.arange(len(issue_types))
+        width = 0.25
+
+        fig, ax = plt.subplots(figsize=(14, 7))
+        ax.bar(x - width, precisions, width, label='Precision', color='#1f77b4')
+        ax.bar(x, recalls, width, label='Recall', color='#ff7f0e')
+        ax.bar(x + width, f1s, width, label='F1 Score', color='#2ca02c')
+
+        ax.set_ylabel('Score')
+        ax.set_title('Detection Metrics per Issue Type')
+        ax.set_xticks(x)
+        ax.set_xticklabels(issue_types, rotation=45, ha='right')
+        ax.set_ylim(0, 1.1)
+        ax.legend()
+
+        plt.tight_layout()
+        filepath = os.path.join(REPORTS_DIR, "per_issue_metrics.png")
+        plt.savefig(filepath)
+        plt.close()
 
     def plot_residual_scatterplot(self, pipelines: List[PipelineInstance]):
         """Plot true vs. predicted (or error vs. predicted) for regression."""

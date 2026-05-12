@@ -179,13 +179,13 @@ class DatasetGenerator:
         )
         
         # 4. Pipeline Issues (Unused Features)
-        if IssueType.UNUSED_FEATURES in selected_issues:
-            drop_frac = INJECTION_PARAMS[IssueType.UNUSED_FEATURES]["drop_fraction"]
-            n_drop = int(X_train.shape[1] * drop_frac)
-            if n_drop > 0:
-                cols_to_drop = self.rng.choice(X_train.columns, size=n_drop, replace=False)
-                X_train = X_train.drop(columns=cols_to_drop)
-                # Keep in test to simulate the issue
+        # if IssueType.UNUSED_FEATURES in selected_issues:
+        #     drop_frac = INJECTION_PARAMS[IssueType.UNUSED_FEATURES]["drop_fraction"]
+        #     n_drop = int(X_train.shape[1] * drop_frac)
+        #     if n_drop > 0:
+        #         cols_to_drop = self.rng.choice(X_train.columns, size=n_drop, replace=False)
+        #         X_train = X_train.drop(columns=cols_to_drop)
+        #         # Keep in test to simulate the issue
         
         pipeline.train_data = {"X": X_train, "y": y_train}
         pipeline.test_data = {"X": X_test, "y": y_test}
@@ -224,15 +224,15 @@ class DatasetGenerator:
         else:
             model = HistGradientBoostingRegressor(**model_kwargs)
         
-        if IssueType.UNFITTED_MODEL not in selected_issues:
-            # Handle missing values properly for HistGradientBoostingClassifier 
-            # Or fill them if we want to ensure fit works (HistGradientBoostingClassifier handles NaNs natively)
-            try:
-                model.fit(X_train, y_train)
-            except Exception as e:
-                # If fitting fails due to an injected issue (like NaN, though HistGB handles them, or zero columns), 
-                # we just leave it unfitted or handled gracefully.
-                pass
+        # if IssueType.UNFITTED_MODEL not in selected_issues:
+        # Handle missing values properly for HistGradientBoostingClassifier 
+        # Or fill them if we want to ensure fit works (HistGradientBoostingClassifier handles NaNs natively)
+        try:
+            model.fit(X_train, y_train)
+        except Exception as e:
+            # If fitting fails due to an injected issue (like NaN, though HistGB handles them, or zero columns), 
+            # we just leave it unfitted or handled gracefully.
+            pass
                 
         pipeline.model = model
         
