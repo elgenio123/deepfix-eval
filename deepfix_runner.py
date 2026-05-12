@@ -4,7 +4,7 @@ from typing import Dict, List
 from dotenv import load_dotenv
 
 from dataset_generator import PipelineInstance
-from config import RAW_RESULTS_DIR
+import config
 
 from deepfix_sdk import DeepFixClient
 from deepfix_sdk.data.datasets import TabularDataset
@@ -17,13 +17,15 @@ class DeepFixRunner:
     Runner for DeepFix. Uses the official DeepFix Python SDK.
     """
     
-    def __init__(self):
+    def __init__(self, api_url: str = None):
         # API key is automatically picked up from os.environ by the SDK if DEEPFIX_API_KEY is set.
-        # self.client = DeepFixClient(api_url="http://localhost:8844/v2/analyse")
-        self.client = DeepFixClient() 
+        if api_url:
+            self.client = DeepFixClient(api_url=api_url)
+        else:
+            self.client = DeepFixClient() 
         
         # Ensure output directory exists
-        os.makedirs(RAW_RESULTS_DIR, exist_ok=True)
+        os.makedirs(config.RAW_RESULTS_DIR, exist_ok=True)
 
     def run(self, pipeline: PipelineInstance) -> str:
         """
@@ -99,7 +101,7 @@ class DeepFixRunner:
             results[pipeline.pipeline_id] = report
             
         # Save raw outputs
-        output_file = os.path.join(RAW_RESULTS_DIR, "deepfix_raw_outputs.json")
+        output_file = os.path.join(config.RAW_RESULTS_DIR, "deepfix_raw_outputs.json")
         with open(output_file, 'w') as f:
             json.dump(results, f, indent=2)
             

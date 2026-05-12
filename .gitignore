@@ -1,6 +1,8 @@
 .env
 .venv/
 outputs/
+outputs_online
+outputs_local/
 __pycache__/
 debug_script_output.txt
 GEMINI.md

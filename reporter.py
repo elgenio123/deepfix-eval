@@ -64,3 +64,49 @@ class Reporter:
         print(f"Reports generated successfully at {REPORTS_DIR}")
         print(f"- JSON: {json_path}")
         print(f"- Markdown: {md_path}")
+
+    def report_comparative(self, results_a: Dict[str, Any], results_b: Dict[str, Any], label_a: str, label_b: str, prefix: str = "comparative"):
+        """
+        Generates a Markdown report comparing two sets of evaluation results.
+        """
+        lines = []
+        lines.append(f"# DeepFix Comparative Report: {label_a} vs {label_b}\n")
+        
+        for task_subset in ["overall", "classification", "regression"]:
+            if task_subset not in results_a or task_subset not in results_b:
+                continue
+                
+            res_a = results_a[task_subset]
+            res_b = results_b[task_subset]
+            
+            lines.append(f"## {task_subset.title()} Comparison")
+            lines.append(f"| Category | Metric | {label_a} | {label_b} | Delta |")
+            lines.append("|---|---|---|---|---|")
+            
+            for category in ["detection", "pipeline_level", "alert_quality"]:
+                for metric in res_a[category].keys():
+                    val_a = res_a[category][metric]
+                    val_b = res_b[category].get(metric, 0.0)
+                    delta = val_b - val_a
+                    
+                    formatted_metric = metric.replace("_", " ").title()
+                    lines.append(f"| {category.title()} | {formatted_metric} | {val_a:.4f} | {val_b:.4f} | {delta:+.4f} |")
+            
+            lines.append("\n### Per-Issue Comparison (F1 Score)")
+            lines.append(f"| Issue Type | {label_a} F1 | {label_b} F1 | Delta |")
+            lines.append("|---|---|---|---|")
+            
+            for issue_type, metrics_a in res_a["per_issue"].items():
+                f1_a = metrics_a["f1"]
+                metrics_b = res_b["per_issue"].get(issue_type, {"f1": 0.0})
+                f1_b = metrics_b["f1"]
+                delta = f1_b - f1_a
+                lines.append(f"| {issue_type} | {f1_a:.4f} | {f1_b:.4f} | {delta:+.4f} |")
+
+            lines.append("\n")
+            
+        md_path = os.path.join(REPORTS_DIR, f"{prefix}_report.md")
+        with open(md_path, "w") as f:
+            f.write("\n".join(lines))
+            
+        print(f"Comparative report generated at {md_path}")
