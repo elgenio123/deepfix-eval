@@ -1,5 +1,3 @@
-
-
 from deepfix_sdk import DeepFixClient
 import os
 
@@ -14,12 +12,12 @@ client = DeepFixClient(api_url="http://localhost:8844//v2/analyse")
 
 from deepfix_sdk.data.datasets import TabularDataset
 from sklearn.ensemble import HistGradientBoostingClassifier
-from sklearn.datasets import load_breast_cancer
+from sklearn.datasets import load_iris
 from sklearn.model_selection import train_test_split
 
-X,y = load_breast_cancer(as_frame=True,return_X_y=True)
+X,y = load_iris(as_frame=True,return_X_y=True)
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42, stratify=y)
-dataset_name = "breast_cancer_classification"
+dataset_name = "iris_classification"
 
 label = "target"
 train = X_train.copy()
@@ -51,7 +49,7 @@ result = client.get_diagnosis(
 
 # Visualize results
 print(result.to_text(verbose=False))
-print(result.to_markdown())
+# print(result.to_markdown())
 
 
 

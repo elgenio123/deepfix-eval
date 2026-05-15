@@ -1,16 +1,17 @@
 import os
 import json
-from typing import Dict, Any
+from typing import Dict, Any, Optional
 
-from config import REPORTS_DIR
+import config
 
 class Reporter:
     """
     Generates structured markdown reports and saves JSON evaluation results.
     """
     
-    def __init__(self):
-        os.makedirs(REPORTS_DIR, exist_ok=True)
+    def __init__(self, output_dir: Optional[str] = None):
+        self.output_dir = output_dir or config.REPORTS_DIR
+        os.makedirs(self.output_dir, exist_ok=True)
         
     def generate_markdown_report(self, results: Dict[str, Any], filepath: str):
         """
@@ -50,25 +51,31 @@ class Reporter:
         with open(filepath, "w") as f:
             f.write("\n".join(lines))
             
-    def report(self, results: Dict[str, Any], prefix: str = "evaluation"):
+    def report(self, results: Dict[str, Any], prefix: str = "evaluation", output_dir: Optional[str] = None):
         """
         Saves results to both JSON and Markdown formats.
         """
-        json_path = os.path.join(REPORTS_DIR, f"{prefix}_results.json")
+        target_dir = output_dir or self.output_dir
+        os.makedirs(target_dir, exist_ok=True)
+        
+        json_path = os.path.join(target_dir, f"{prefix}_results.json")
         with open(json_path, "w") as f:
             json.dump(results, f, indent=2)
             
-        md_path = os.path.join(REPORTS_DIR, f"{prefix}_report.md")
+        md_path = os.path.join(target_dir, f"{prefix}_report.md")
         self.generate_markdown_report(results, md_path)
         
-        print(f"Reports generated successfully at {REPORTS_DIR}")
+        print(f"Reports generated successfully at {target_dir}")
         print(f"- JSON: {json_path}")
         print(f"- Markdown: {md_path}")
 
-    def report_comparative(self, results_a: Dict[str, Any], results_b: Dict[str, Any], label_a: str, label_b: str, prefix: str = "comparative"):
+    def report_comparative(self, results_a: Dict[str, Any], results_b: Dict[str, Any], label_a: str, label_b: str, prefix: str = "comparative", output_dir: Optional[str] = None):
         """
         Generates a Markdown report comparing two sets of evaluation results.
         """
+        target_dir = output_dir or self.output_dir
+        os.makedirs(target_dir, exist_ok=True)
+        
         lines = []
         lines.append(f"# DeepFix Comparative Report: {label_a} vs {label_b}\n")
         
@@ -105,7 +112,7 @@ class Reporter:
 
             lines.append("\n")
             
-        md_path = os.path.join(REPORTS_DIR, f"{prefix}_report.md")
+        md_path = os.path.join(target_dir, f"{prefix}_report.md")
         with open(md_path, "w") as f:
             f.write("\n".join(lines))
             

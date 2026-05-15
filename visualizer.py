@@ -4,26 +4,32 @@ import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
 from sklearn.metrics import confusion_matrix, mean_absolute_error, accuracy_score
-from typing import List
+from typing import List, Optional
 
-from config import REPORTS_DIR, TaskType
+import config
+from config import TaskType
 from dataset_generator import PipelineInstance
 
 class Visualizer:
-    def __init__(self):
-        os.makedirs(REPORTS_DIR, exist_ok=True)
+    def __init__(self, output_dir: Optional[str] = None):
+        self.output_dir = output_dir or config.REPORTS_DIR
+        os.makedirs(self.output_dir, exist_ok=True)
         # Set styling
         sns.set_theme(style="whitegrid")
 
-    def visualize(self, pipelines: List[PipelineInstance], results = None):
-        self.plot_residual_scatterplot(pipelines)
-        self.plot_error_by_group(pipelines)
-        self.plot_groupwise_confusion_matrices(pipelines)
+    def visualize(self, pipelines: List[PipelineInstance], results = None, output_dir: Optional[str] = None):
+        target_dir = output_dir or self.output_dir
+        os.makedirs(target_dir, exist_ok=True)
+        
+        self.plot_residual_scatterplot(pipelines, output_dir=target_dir)
+        self.plot_error_by_group(pipelines, output_dir=target_dir)
+        self.plot_groupwise_confusion_matrices(pipelines, output_dir=target_dir)
         if results:
-            self.plot_per_issue_metrics(results)
+            self.plot_per_issue_metrics(results, output_dir=target_dir)
 
-    def plot_per_issue_metrics(self, results):
+    def plot_per_issue_metrics(self, results, output_dir: Optional[str] = None):
         """Plot precision, recall, and f1 for each issue type using evaluation results."""
+        target_dir = output_dir or self.output_dir
         # Use overall results for per-issue metrics
         data = results.get("overall", results).get("per_issue", {})
         if not data:
@@ -50,12 +56,13 @@ class Visualizer:
         ax.legend()
 
         plt.tight_layout()
-        filepath = os.path.join(REPORTS_DIR, "per_issue_metrics.png")
+        filepath = os.path.join(target_dir, "per_issue_metrics.png")
         plt.savefig(filepath)
         plt.close()
 
-    def plot_residual_scatterplot(self, pipelines: List[PipelineInstance]):
+    def plot_residual_scatterplot(self, pipelines: List[PipelineInstance], output_dir: Optional[str] = None):
         """Plot true vs. predicted (or error vs. predicted) for regression."""
+        target_dir = output_dir or self.output_dir
         # Find regression pipelines that have a fitted model
         reg_pipelines = [p for p in pipelines if p.task_type == TaskType.REGRESSION and p.model is not None]
         if not reg_pipelines:
@@ -83,12 +90,13 @@ class Visualizer:
             plt.legend()
         plt.tight_layout()
         
-        filepath = os.path.join(REPORTS_DIR, "residual_scatterplot.png")
+        filepath = os.path.join(target_dir, "residual_scatterplot.png")
         plt.savefig(filepath)
         plt.close()
 
-    def plot_error_by_group(self, pipelines: List[PipelineInstance]):
+    def plot_error_by_group(self, pipelines: List[PipelineInstance], output_dir: Optional[str] = None):
         """Bar chart of mean absolute error or error rate per sensitive group."""
+        target_dir = output_dir or self.output_dir
         group_errors = {"Classification": {0: [], 1: []}, "Regression": {0: [], 1: []}}
 
         for pipeline in pipelines:
@@ -127,12 +135,13 @@ class Visualizer:
             axes[idx].set_ylabel("Error Rate" if task_name == "Classification" else "Mean Absolute Error")
 
         plt.tight_layout()
-        filepath = os.path.join(REPORTS_DIR, "error_by_group.png")
+        filepath = os.path.join(target_dir, "error_by_group.png")
         plt.savefig(filepath)
         plt.close()
 
-    def plot_groupwise_confusion_matrices(self, pipelines: List[PipelineInstance]):
+    def plot_groupwise_confusion_matrices(self, pipelines: List[PipelineInstance], output_dir: Optional[str] = None):
         """Side-by-side confusion matrices for each group to show differing performance."""
+        target_dir = output_dir or self.output_dir
         # Find one suitable pipeline to plot (plotting an aggregate CM is possible but complex)
         clf_pipelines = [p for p in pipelines if p.task_type == TaskType.CLASSIFICATION and p.model is not None and "sensitive_group" in p.test_data["X"].columns]
         if not clf_pipelines:
@@ -164,7 +173,7 @@ class Visualizer:
             axes[1].set_ylabel("True")
             
             plt.tight_layout()
-            filepath = os.path.join(REPORTS_DIR, "groupwise_confusion_matrices.png")
+            filepath = os.path.join(target_dir, "groupwise_confusion_matrices.png")
             plt.savefig(filepath)
             plt.close()
         except Exception:
