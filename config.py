@@ -216,7 +216,7 @@ DIFFICULTY_PROFILES = {
 PIPELINE_COUNTS_PER_TASK = {
     Difficulty.EASY: 1,
     Difficulty.MEDIUM: 2,
-    Difficulty.HARD: 0,
+    Difficulty.HARD: 2,
 }
 TOTAL_PIPELINES = sum(PIPELINE_COUNTS_PER_TASK.values()) * len(TaskType)
 
