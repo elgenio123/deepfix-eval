@@ -214,9 +214,9 @@ DIFFICULTY_PROFILES = {
 # These counts are applied to EACH task type (classification AND regression).
 # e.g. sum = 10 means 10 classification + 10 regression = 20 total API requests.
 PIPELINE_COUNTS_PER_TASK = {
-    Difficulty.EASY: 1,
-    Difficulty.MEDIUM: 2,
-    Difficulty.HARD: 2,
+    Difficulty.EASY: 15,
+    Difficulty.MEDIUM: 20,
+    Difficulty.HARD: 15,
 }
 TOTAL_PIPELINES = sum(PIPELINE_COUNTS_PER_TASK.values()) * len(TaskType)
 
@@ -287,7 +287,8 @@ TEST_FRACTION = 0.70         # 70% for final evaluation
 # ─────────────────────────────────────────────
 # Output / Logging
 # ─────────────────────────────────────────────
-OUTPUT_DIR = "outputs_online"
-REPORTS_DIR = "outputs_online/reports"
-RAW_RESULTS_DIR = "outputs_online/raw"
-LOG_FILE = "outputs_online/experiment.log"
+DATA_DIR = "outputs/data"
+OUTPUT_DIR = "outputs"
+REPORTS_DIR = "outputs/reports"
+RAW_RESULTS_DIR = "outputs/raw"
+LOG_FILE = "outputs/experiment.log"
